@@ -11,6 +11,7 @@ export const ShopContextProvider = ({ children }) => {
     try {
       const response = await axios.get("https://goldback2.onrender.com/products/fetch");
       if (response) setProducts(response.data.products);
+      console.log("products",products)
     } catch (e) {
       console.log(e);
     }

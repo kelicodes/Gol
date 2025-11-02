@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { ShopContext } from "../../Context/ShopContext.jsx";
-import "./CheckoutPage.css";
+import "./Checkout.css";
 
 const CheckoutPage = () => {
   const { cart, getTotalPrice, getTotalItems, clearCart } = useContext(ShopContext);
@@ -27,6 +27,23 @@ const CheckoutPage = () => {
     <section className="checkout-page">
       <h2 className="checkout-title">Shipping Information</h2>
       <div className="checkout-container">
+
+          <div className="cart-summary">
+          <h3>Order Summary</h3>
+          {cart.length === 0 ? (
+            <p>Your cart is empty.</p>
+          ) : (
+            <ul>
+              {cart.map((item) => (
+                <li key={item.id}>
+                  {item.name} x {item.quantity} - KES {item.price * item.quantity}
+                </li>
+              ))}
+            </ul>
+          )}
+          <p>Total Items: {getTotalItems()}</p>
+          <p>Total Price: KES {getTotalPrice()}</p>
+        </div>
         {/* Shipping Form */}
         <form className="shipping-form" onSubmit={handleSubmit}>
           <label>
@@ -85,22 +102,7 @@ const CheckoutPage = () => {
         </form>
 
         {/* Cart Summary */}
-        <div className="cart-summary">
-          <h3>Order Summary</h3>
-          {cart.length === 0 ? (
-            <p>Your cart is empty.</p>
-          ) : (
-            <ul>
-              {cart.map((item) => (
-                <li key={item.id}>
-                  {item.name} x {item.quantity} - KES {item.price * item.quantity}
-                </li>
-              ))}
-            </ul>
-          )}
-          <p>Total Items: {getTotalItems()}</p>
-          <p>Total Price: KES {getTotalPrice()}</p>
-        </div>
+      
       </div>
     </section>
   );

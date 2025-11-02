@@ -9,13 +9,18 @@ const ProductDetail = () => {
   const [product, setProduct] = useState(null);
   const [mainImage, setMainImage] = useState("");
 
-  useEffect(() => {
-    const foundProduct = products.find((p) => p.id.toString() === id);
-    if (foundProduct) {
-      setProduct(foundProduct);
-      setMainImage(foundProduct.images[0]);
-    }
-  }, [id, products]);
+ useEffect(() => {
+  const foundProduct = products.find((p) => p._id.toString() === id);
+  if (foundProduct) {
+    setProduct(foundProduct);
+    setMainImage(foundProduct.images?.[0] || "");
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth", // optional for smooth scrolling
+    });
+  }
+}, [id, products]);
+
 
   if (!product) return <p className="loading">Loading product...</p>;
 
