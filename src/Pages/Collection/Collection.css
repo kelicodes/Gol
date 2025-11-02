@@ -1,0 +1,79 @@
+.collection {
+  padding: 20px;       /* inner spacing */
+  width: 100%;         /* full page width */
+  margin: 0 auto;      /* center horizontally */
+  background-color: var(--bg-color);
+  box-sizing: border-box;
+  height: auto;        /* grows with content */
+}
+
+.collection-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Filter Controls */
+.collection-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+.filter-group label {
+  margin-bottom: 5px;
+}
+
+.filter-group select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--primary-color);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.filter-group select:hover {
+  border-color: var(--text-color);
+}
+
+/* Product Grid */
+.collection-grid {
+  display: grid;
+  gap: 25px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  width: 100%; /* ensure it spans full width */
+  padding: 0 20px; /* optional side padding */
+  box-sizing: border-box;
+}
+
+/* No products message */
+.no-products {
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--sectext-color);
+  grid-column: 1 / -1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .collection-controls {
+    flex-direction: column;
+    align-items: center;
+  }
+  .collection-grid {
+    gap: 15px;
+  }
+}

@@ -1,0 +1,141 @@
+.cart-checkout {
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.cart-title {
+  text-align: center;
+  font-size: 2rem;
+  color: var(--primary-color);
+  font-weight: bold;
+  margin-bottom: 30px;
+}
+
+.empty-cart {
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--sectext-color);
+}
+
+/* Cart grid */
+.cart-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  margin-bottom: 30px;
+  border-top: 2px solid var(--primary-color);
+  padding-top: 20px;
+}
+
+.cart-item {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--sectext-color);
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: var(--bg-color);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.cart-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.2);
+}
+
+.cart-item-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.cart-item-info {
+  padding: 15px;
+  color: var(--text-color);
+}
+
+.cart-item-info h3 {
+  margin-bottom: 10px;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.quantity-controls button {
+  padding: 4px 10px;
+  background-color: var(--primary-color);
+  color: var(--bg-color);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.quantity-controls input {
+  width: 50px;
+  text-align: center;
+  border: 1px solid var(--primary-color);
+  border-radius: 6px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+/* Cart summary */
+.cart-summary {
+  text-align: right;
+  font-size: 1.2rem;
+  color: var(--text-color);
+}
+
+.cart-actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+}
+
+.btn-clear,
+.btn-checkout {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: opacity 0.3s ease;
+}
+
+.btn-clear {
+  background-color: var(--sectext-color);
+  color: var(--bg-color);
+}
+
+.btn-clear:hover {
+  opacity: 0.8;
+}
+
+.btn-checkout {
+  background-color: var(--primary-color);
+  color: var(--bg-color);
+}
+
+.btn-checkout:hover {
+  opacity: 0.9;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cart-grid {
+    gap: 15px;
+  }
+  .cart-summary {
+    text-align: center;
+  }
+  .cart-actions {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
