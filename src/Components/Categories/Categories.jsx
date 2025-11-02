@@ -1,22 +1,23 @@
 import React from "react";
 import "./Categories.css";
+import {assets} from "../../assets/asssets.js"
 
 const categories = [
   { 
     name: "Shoes", 
-    image: "https://images.unsplash.com/photo-1598300059854-d101d99c1a9f?auto=format&fit=crop&w=800&q=80" 
+    image: assets.shoes
   },
   { 
-    name: "Sweatpants", 
-    image: "https://images.unsplash.com/photo-1593032465177-48f58c0d4e1b?auto=format&fit=crop&w=800&q=80" 
+    name: "Jacket", 
+    image: assets.jacket
   },
   { 
-    name: "Jackets", 
-    image: "https://images.unsplash.com/photo-1598970434795-0c54fe7c0642?auto=format&fit=crop&w=800&q=80" 
+    name: "Hoodie", 
+    image: assets.hoodie
   },
   { 
-    name: "Hoodies", 
-    image: "https://images.unsplash.com/photo-1602810318020-429a2e38b163?auto=format&fit=crop&w=800&q=80" 
+    name: "T-shirts", 
+    image: assets.shirt
   },
 ];
 

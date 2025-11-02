@@ -1,24 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";4
+import {assets} from "../../assets/asssets.js"
 import "./Banner.css";
 
 const Banner = () => {
   const banners = [
     {
-      image: "https://via.placeholder.com/1200x500?text=Banner+1",
+      image: assets.hoodie,
       title: "Discover the Latest Fashion",
       subtitle: "Trendy styles picked just for you",
       cta1: "Shop Now",
       cta2: "Learn More",
     },
     {
-      image: "https://via.placeholder.com/1200x500?text=Banner+2",
+      image: assets.jacket,
       title: "Exclusive Deals in Store",
       subtitle: "Get up to 50% off on selected items",
       cta1: "Grab Offer",
       cta2: "Explore",
     },
     {
-      image: "https://via.placeholder.com/1200x500?text=Banner+3",
+      image: assets.shoes,
       title: "New Arrivals This Season",
       subtitle: "Fresh designs you’ll fall in love with",
       cta1: "View Collection",
@@ -32,7 +33,7 @@ const Banner = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrent((prev) => (prev + 1) % banners.length);
-    }, 180000);
+    }, 10000);
 
     return () => clearInterval(interval);
   }, [banners.length]);
