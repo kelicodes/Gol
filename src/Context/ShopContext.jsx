@@ -67,9 +67,11 @@ export const ShopContextProvider = ({ children }) => {
           quantity: i.quantity,
         }));
         setCart(items);
+        alert("add to cart successfull")
         return true;
-      }
-      return false;
+      }else{
+        alert("add to cart failed")
+      return false;}
     } catch (e) {
       console.log("Add to cart error:", e.response?.data || e.message);
       return false;
