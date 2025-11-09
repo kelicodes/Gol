@@ -10,16 +10,17 @@ const Collection = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [sortOption, setSortOption] = useState("default");
-  const [loading, setLoading] = useState(true); // <-- loading state
+  const [loading, setLoading] = useState(true); // loading state
 
   const categories = ["All", "Shoes", "Sweatpants", "Jackets", "Hoodies"];
 
   useEffect(() => {
-    setLoading(true); // start loading
+    setLoading(true);
 
-    if (!Array.isArray(products)) {
+    if (!Array.isArray(products) || products.length === 0) {
+      // Wait for products to be fetched
       setFilteredProducts([]);
-      setLoading(false);
+      setLoading(true);
       return;
     }
 
@@ -40,10 +41,7 @@ const Collection = () => {
     }
 
     setFilteredProducts(tempProducts);
-
-    // small delay to simulate loading, optional
-    setTimeout(() => setLoading(false), 300);
-
+    setLoading(false);
   }, [products, categoryFilter, sortOption]);
 
   return (
@@ -84,7 +82,7 @@ const Collection = () => {
       {/* Product Grid */}
       <div className="collection-grid">
         {loading ? (
-          <Spinner /> // <-- show spinner while loading
+          <Spinner /> // show spinner while loading
         ) : filteredProducts.length > 0 ? (
           filteredProducts.map((product, index) => (
             <Card
