@@ -1,102 +1,118 @@
-import { useState,useEffect,useContext } from "react"
-import {useNavigate,Link} from 'react-router-dom'
-import {toast} from "react-toastify"
-import axios from "axios"
+import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import axios from "axios";
 import { MdAttachEmail } from "react-icons/md";
 import { RiLockPasswordFill } from "react-icons/ri";
- import { SiNamecheap } from "react-icons/si";
-import "./Login.css"
+import { SiNamecheap } from "react-icons/si";
+import { AuthContext } from "../../Context/Authcontext.jsx";
+import "./Login.css";
 
-const Login=()=>{
-    const [logstate,setLogstate]=useState("login")
-    const [name,setName]=useState("")
-    const [email,setEmail]=useState("")
-    const [password,setPassword]=useState("")
+const Login = () => {
+  const [logstate, setLogstate] = useState("login");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-    const navigate=useNavigate()
+  const { setToken } = useContext(AuthContext);
+  const navigate = useNavigate();
 
+  const submithandler = async (e) => {
+    e.preventDefault();
+    try {
+      let response;
 
-    const submithandler=async(e)=>{
-        e.preventDefault()
-        try{
-            const formdata=new FormData()
-           
-            if(logstate === "signup"){
-                 formdata.append("name",name)
-                formdata.append("email",email)
-                formdata.append("password",password)
-                console.log("we on 1")
+      if (logstate === "signup") {
+        response = await axios.post("https://goldback2.onrender.com/user/reg", {
+          name,
+          email,
+          password,
+        });
+      } else {
+        response = await axios.post("https://goldback2.onrender.com/user/login", {
+          email,
+          password,
+        });
+      }
 
-                const response= await axios.post("https://goldback2.onrender.com/user/reg",{
-                    email,password,name
-                })
+      if (response.data.success) {
+        // Save token to localStorage AND context
+        localStorage.setItem("token", response.data.token);
+        setToken(response.data.token);
 
-                if(response){
-                    setEmail("")
-                    setName('')
-                    setPassword("")
-                    toast.success(response.data.message)
-                    navigate('/add')
-                }
-            }else if(logstate === "login"){
-                formdata.append("email",email)
-                formdata.append("password",password)
-                 console.log(email,password)
-                 console.log("we on 202")
-                
+        // Clear fields
+        setName("");
+        setEmail("");
+        setPassword("");
 
-                const response= await axios.post("https://goldback2.onrender.com/user/login",{
-                    email,password
-                })
-
-                if(response){
-                
-                    setEmail("")
-                    setName('')
-                    setPassword("")
-                     toast.success(response.data.message)
-                    navigate('/add')
-                }
-            }
-            
-        }catch(e){
-            console.log(e)
-            toast.error(e)
-        }
+        toast.success(response.data.message);
+        navigate("/"); // redirect after login/signup
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (e) {
+      console.log(e);
+      toast.error("Something went wrong!");
     }
+  };
 
-
-    return(<form onSubmit={submithandler} className="Login">
-         <div className="navbar-logo">
-        <h2>Gold<span>Store</span></h2>
-      </div>
-        {
-            logstate === "signup" ? <div className="Name">
-                <div className="Nameinput enter">
-                   
-<SiNamecheap />
-                    <input type="text" value={name} onChange={(e)=>setName(e.target.value)} placeholder="enter name" />
-                </div>
-            </div> : <></>
-        }
-
-        <div className="Email enter">
-            <MdAttachEmail />
-            <input type="text" value={email} onChange={(e)=>setEmail(e.target.value)}  placeholder="Enter email " />
+  return (
+    <div className="LoginContainer">
+      <form onSubmit={submithandler} className="Login">
+        <div className="navbar-logo">
+          <h2>
+            Gold<span>Store</span>
+          </h2>
         </div>
-          <div className="Password enter">
-            <RiLockPasswordFill />
-            <input value={password} onChange={(e)=>setPassword(e.target.value)} type="password"   placeholder="Enter password " />
+
+        {logstate === "signup" && (
+          <div className="enter">
+            <SiNamecheap />
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter name"
+              required
+            />
+          </div>
+        )}
+
+        <div className="enter">
+          <MdAttachEmail />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter email"
+            required
+          />
         </div>
-        {
-            logstate === "signup" ? <p onClick={()=>setLogstate("login")}>Already have an account? <span>Login</span></p> :
-             <p onClick={()=>setLogstate("signup")}>Dont have an account? <span>Signin</span></p>
-        }
 
-        <button className="btn">SUBMIT</button>
-    </form>)
-}
+        <div className="enter">
+          <RiLockPasswordFill />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter password"
+            required
+          />
+        </div>
 
+        <button type="submit" className="btn">
+          {logstate === "signup" ? "Sign Up" : "Login"}
+        </button>
 
+        <p>
+          {logstate === "signup" ? "Already have an account?" : "Don't have an account?"}{" "}
+          <span onClick={() => setLogstate(logstate === "signup" ? "login" : "signup")}>
+            {logstate === "signup" ? "Login" : "Sign Up"}
+          </span>
+        </p>
+      </form>
+    </div>
+  );
+};
 
-export default Login
+export default Login;

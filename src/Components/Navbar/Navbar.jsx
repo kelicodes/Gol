@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { assets } from "../../assets/asssets.js";
 import { Menu, X, Sun, Moon, ShoppingCart } from "lucide-react";
 import "./Navbar.css";
@@ -7,6 +8,7 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [theme, setTheme] = useState("dark");
   const [cartCount, setCartCount] = useState(3); // example cart items
+  const navigate = useNavigate(); // <-- useNavigate hook
 
   // Apply theme to root element
   useEffect(() => {
@@ -24,6 +26,11 @@ const Navbar = () => {
     { name: "About", path: "/about" },
     { name: "Contact", path: "/contact" }
   ];
+
+  // Navigate to cart page
+  const goToCart = () => {
+    navigate("/cart");
+  };
 
   return (
     <nav className="navbar">
@@ -52,7 +59,7 @@ const Navbar = () => {
       {/* Right Side */}
       <div className="navbar-right">
         {/* Cart Icon */}
-        <div className="navbar-cart">
+        <div className="navbar-cart" onClick={goToCart} style={{ cursor: "pointer" }}>
           <ShoppingCart size={24} />
           <span className="cart-count">{cartCount}</span>
         </div>

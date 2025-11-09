@@ -1,60 +1,60 @@
-.Login {
+:root {
+  --bg-color: #0f0f0f;
+  --text-color: #fff;
+  --sectext-color: #aaa;
+  --primary-color: #ffd700;
+}
+
+.LoginContainer {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  width: 100%;
+  align-items: center;
   min-height: 100vh;
-  background-color: var(--bg-color);
-  color: var(--text-color);
   padding: 2rem;
+  background: linear-gradient(135deg, #1a1a1a, #111);
   font-family: "Poppins", sans-serif;
 }
 
-/* Logo */
-.navbar-logo {
-  text-align: center;
-  margin-bottom: 2rem;
+.Login {
+  background-color: #1b1b1b;
+  padding: 2rem 2.5rem;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .navbar-logo h2 {
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: 700;
   color: var(--text-color);
+  margin-bottom: 2rem;
 }
 
 .navbar-logo span {
   color: var(--primary-color);
 }
 
-/* Input container */
 .enter {
   display: flex;
   align-items: center;
   gap: 0.8rem;
   background-color: #111;
-  border: 1px solid var(--sectext-color);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 0.8rem 1rem;
   width: 100%;
-  max-width: 350px;
   margin-bottom: 1rem;
-  transition: border 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s ease;
 }
 
-.enter:hover,
-.enter:focus-within {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
-}
-
-/* Icons */
 .enter svg {
   color: var(--primary-color);
-  font-size: 1.2rem;
+  font-size: 1.3rem;
 }
 
-/* Input field */
 .enter input {
   border: none;
   outline: none;
@@ -64,32 +64,32 @@
   font-size: 1rem;
 }
 
-/* Button */
+.enter:focus-within {
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
 .btn {
   width: 100%;
-  max-width: 350px;
-  background: var(--primary-color);
-  color: var(--bg-color);
-  font-size: 1rem;
+  padding: 0.9rem;
   font-weight: 600;
-  padding: 0.8rem;
   border: none;
   border-radius: 10px;
+  background-color: var(--primary-color);
+  color: var(--bg-color);
   cursor: pointer;
-  margin-top: 1rem;
-  transition: background 0.3s ease, transform 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .btn:hover {
-  background: #e6c200;
+  background-color: #e6c200;
   transform: translateY(-2px);
 }
 
-/* Switch between login/signup */
 .Login p {
   margin-top: 1rem;
   font-size: 0.9rem;
   color: var(--sectext-color);
+  text-align: center;
 }
 
 .Login p span {
@@ -102,21 +102,12 @@
   text-decoration: underline;
 }
 
-/* Responsive */
 @media (max-width: 600px) {
   .Login {
     padding: 1.5rem;
   }
 
   .navbar-logo h2 {
-    font-size: 1.6rem;
-  }
-
-  .enter {
-    max-width: 100%;
-  }
-
-  .btn {
-    max-width: 100%;
+    font-size: 1.8rem;
   }
 }

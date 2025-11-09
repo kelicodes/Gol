@@ -1,28 +1,58 @@
-import React, { useContext, useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useContext, useState, useEffect } from "react"; 
+import { useParams, useNavigate } from "react-router-dom";
 import { ShopContext } from "../../Context/ShopContext.jsx";
 import "./ProductDetail.css";
 
 const ProductDetail = () => {
   const { id } = useParams();
-  const { products, addToCart } = useContext(ShopContext);
+  const navigate = useNavigate();
+  const { products, addToCart, createOrder } = useContext(ShopContext);
+
   const [product, setProduct] = useState(null);
   const [mainImage, setMainImage] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [loading, setLoading] = useState(false);
 
- useEffect(() => {
-  const foundProduct = products.find((p) => p._id.toString() === id);
-  if (foundProduct) {
-    setProduct(foundProduct);
-    setMainImage(foundProduct.images?.[0] || "");
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth", // optional for smooth scrolling
-    });
-  }
-}, [id, products]);
-
+  // Fetch product by id from context
+  useEffect(() => {
+    const foundProduct = products.find((p) => p._id.toString() === id);
+    if (foundProduct) {
+      setProduct(foundProduct);
+      setMainImage(foundProduct.images?.[0] || "");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [id, products]);
 
   if (!product) return <p className="loading">Loading product...</p>;
+
+  const handleAddToCart = async () => {
+    setLoading(true);
+    await addToCart(product._id, quantity);
+    setLoading(false);
+    alert("Added to cart!");
+  };
+
+  const handleBuyNow = async () => {
+    setLoading(true);
+    try {
+      // Add product to cart first
+      await addToCart(product._id, quantity);
+
+      // Immediately create an order
+      const order = await createOrder("Mpesa", "User shipping address"); // You can replace with real address input
+      if (order.success) {
+        alert("Order created! Proceed to payment.");
+        navigate("/checkout"); // redirect to checkout/payment page
+      } else {
+        alert("Failed to create order.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error processing buy now.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <section className="product-detail">
@@ -47,9 +77,29 @@ const ProductDetail = () => {
         <p className="product-price">KES {product.price}</p>
         <p className="product-desc">{product.desc}</p>
 
-        <button className="btn-add-cart" onClick={() => addToCart(product)}>
-          Add to Cart
-        </button>
+        <div className="quantity-selector">
+          <button onClick={() => setQuantity((q) => Math.max(1, q - 1))}>-</button>
+          <span>{quantity}</span>
+          <button onClick={() => setQuantity((q) => q + 1)}>+</button>
+        </div>
+
+        <div className="action-buttons">
+          <button
+            className="btn-add-cart"
+            onClick={handleAddToCart}
+            disabled={loading}
+          >
+            {loading ? "Adding..." : "Add to Cart"}
+          </button>
+
+          <button
+            className="btn-buy-now"
+            onClick={handleBuyNow}
+            disabled={loading}
+          >
+            {loading ? "Processing..." : "Buy Now"}
+          </button>
+        </div>
       </div>
     </section>
   );

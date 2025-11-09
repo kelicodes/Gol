@@ -3,31 +3,40 @@ import { ShopContext } from "../../Context/ShopContext.jsx";
 import "./Orders.css";
 
 const Orders = () => {
-  const { userOrders } = useContext(ShopContext); // assume context has userOrders
+  const { fetchUserOrders } = useContext(ShopContext); // function to fetch orders from backend
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    // if using context
-    if (userOrders) setOrders(userOrders);
+    const getOrders = async () => {
+      setLoading(true);
+      try {
+        const data = await fetchUserOrders(); // call context method
+        setOrders(data || []);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load orders.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    // OR fetch from API
-    // fetch("/api/orders")
-    //   .then(res => res.json())
-    //   .then(data => setOrders(data))
-    //   .catch(err => console.error(err));
-  }, [userOrders]);
+    getOrders();
+  }, [fetchUserOrders]);
 
-  if (!orders || orders.length === 0)
-    return <p className="loading">No orders found.</p>;
+  if (loading) return <p className="loading">Loading orders...</p>;
+  if (error) return <p className="error">{error}</p>;
+  if (orders.length === 0) return <p className="loading">No orders found.</p>;
 
   return (
     <section className="orders">
       <h2>Your Orders</h2>
       <div className="orders-list">
-        {orders.map((order, index) => (
-          <div key={index} className="order-card">
+        {orders.map((order) => (
+          <div key={order._id} className="order-card">
             <p>
-              <strong>Order ID:</strong> {order._id || order.id || index + 1}
+              <strong>Order ID:</strong> {order._id}
             </p>
             <p>
               <strong>Status:</strong>{" "}
@@ -36,10 +45,12 @@ const Orders = () => {
               </span>
             </p>
             <p>
-              <strong>Total:</strong> KES {order.total.toFixed(2)}
+              <strong>Total:</strong> KES{" "}
+              {order.totalAmount?.toFixed(2) || order.total?.toFixed(2)}
             </p>
             <p>
-              <strong>Items:</strong> {order.items.map(i => i.name).join(", ")}
+              <strong>Items:</strong>{" "}
+              {order.items.map((i) => `${i.name} x ${i.quantity}`).join(", ")}
             </p>
           </div>
         ))}

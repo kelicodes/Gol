@@ -1,19 +1,27 @@
 import React, { useContext, useState, useEffect } from "react";
 import { ShopContext } from "../../Context/ShopContext.jsx";
+import Spinner from "../../Components/Spinner/Spinner.jsx";
 import Card from "../../Components/Card/Card.jsx";
 import "./Collection.css";
 
 const Collection = () => {
-  const { products = [] } = useContext(ShopContext); // default empty array
+  const { products = [] } = useContext(ShopContext);
 
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [sortOption, setSortOption] = useState("default");
+  const [loading, setLoading] = useState(true); // <-- loading state
 
   const categories = ["All", "Shoes", "Sweatpants", "Jackets", "Hoodies"];
 
   useEffect(() => {
-    if (!Array.isArray(products)) return; // defensive guard
+    setLoading(true); // start loading
+
+    if (!Array.isArray(products)) {
+      setFilteredProducts([]);
+      setLoading(false);
+      return;
+    }
 
     let tempProducts = [...products];
 
@@ -32,6 +40,10 @@ const Collection = () => {
     }
 
     setFilteredProducts(tempProducts);
+
+    // small delay to simulate loading, optional
+    setTimeout(() => setLoading(false), 300);
+
   }, [products, categoryFilter, sortOption]);
 
   return (
@@ -71,7 +83,9 @@ const Collection = () => {
 
       {/* Product Grid */}
       <div className="collection-grid">
-        {filteredProducts.length > 0 ? (
+        {loading ? (
+          <Spinner /> // <-- show spinner while loading
+        ) : filteredProducts.length > 0 ? (
           filteredProducts.map((product, index) => (
             <Card
               key={index}
@@ -80,7 +94,7 @@ const Collection = () => {
               price={product.price}
               desc={product.desc}
               category={product.category}
-              image={product.images?.[0] || ""} // safe access
+              image={product.images?.[0]}
             />
           ))
         ) : (

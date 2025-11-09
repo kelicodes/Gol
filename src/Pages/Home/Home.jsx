@@ -7,8 +7,8 @@ import Collection from "../../Pages/Collection/Collection.jsx"
 const Home=()=>{
     return (<div className="home">
         <Banner/>
-        <Collection/>
         <Categories/>
+        <Collection/>
     </div>)
 }
 
