@@ -10,7 +10,9 @@ const Collection = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [sortOption, setSortOption] = useState("default");
-  const [loading, setLoading] = useState(true); // loading state
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [showFilters, setShowFilters] = useState(false); // new toggle state
 
   const categories = ["All", "Shoes", "Sweatpants", "Jackets", "Hoodies"];
 
@@ -18,7 +20,6 @@ const Collection = () => {
     setLoading(true);
 
     if (!Array.isArray(products) || products.length === 0) {
-      // Wait for products to be fetched
       setFilteredProducts([]);
       setLoading(true);
       return;
@@ -33,6 +34,15 @@ const Collection = () => {
       );
     }
 
+    // Filter by search term
+    if (searchTerm.trim() !== "") {
+      tempProducts = tempProducts.filter(
+        (prod) =>
+          prod.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          prod.desc?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
     // Sort products
     if (sortOption === "price-high") {
       tempProducts.sort((a, b) => b.price - a.price);
@@ -42,47 +52,67 @@ const Collection = () => {
 
     setFilteredProducts(tempProducts);
     setLoading(false);
-  }, [products, categoryFilter, sortOption]);
+  }, [products, categoryFilter, sortOption, searchTerm]);
 
   return (
     <section className="collection">
       <h2 className="collection-title">Our Collection</h2>
 
-      {/* Filter Controls */}
-      <div className="collection-controls">
-        <div className="filter-group">
-          <label htmlFor="category">Category:</label>
-          <select
-            id="category"
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-          >
-            {categories.map((cat, idx) => (
-              <option key={idx} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="filter-group">
-          <label htmlFor="sort">Sort by:</label>
-          <select
-            id="sort"
-            value={sortOption}
-            onChange={(e) => setSortOption(e.target.value)}
-          >
-            <option value="default">Default</option>
-            <option value="price-high">Price: High to Low</option>
-            <option value="price-low">Price: Low to High</option>
-          </select>
-        </div>
+      {/* Toggle Filters Button */}
+      <div className="toggle-filters">
+        <button onClick={() => setShowFilters((prev) => !prev)}>
+          {showFilters ? "Hide Filters" : "Show Filters"}
+        </button>
       </div>
+
+      {/* Filter Controls */}
+      {showFilters && (
+        <div className="collection-controls">
+          <div className="filter-group">
+            <label htmlFor="category">Category:</label>
+            <select
+              id="category"
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+            >
+              {categories.map((cat, idx) => (
+                <option key={idx} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="filter-group">
+            <label htmlFor="sort">Sort by:</label>
+            <select
+              id="sort"
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+            >
+              <option value="default">Default</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="price-low">Price: Low to High</option>
+            </select>
+          </div>
+
+          <div className="filter-group">
+            <label htmlFor="search">Search:</label>
+            <input
+              type="text"
+              id="search"
+              placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Product Grid */}
       <div className="collection-grid">
         {loading ? (
-          <Spinner /> // show spinner while loading
+          <Spinner />
         ) : filteredProducts.length > 0 ? (
           filteredProducts.map((product, index) => (
             <Card

@@ -10,8 +10,10 @@ export const ShopContextProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [orders, setOrders] = useState([]);
 
-  // Helper to get token
   const getToken = () => localStorage.getItem("token");
+  const getAuthHeader = () => ({
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
 
   // ======== FETCH PRODUCTS ========
   const fetchProducts = async () => {
@@ -23,17 +25,35 @@ export const ShopContextProvider = ({ children }) => {
     }
   };
 
+  // ======== HELPER: FETCH FULL PRODUCT DETAILS ========
+  const fetchProductDetails = async (productId) => {
+    try {
+      const res = await axios.get(`${BASE_URL}products/${productId}`);
+      return res.data.product;
+    } catch (e) {
+      console.log("Fetch product details error:", e.response?.data || e.message);
+      return null;
+    }
+  };
+
   // ======== FETCH CART ========
   const myCart = async () => {
     try {
-      const res = await axios.post(`${BASE_URL}/cart/getcart`, { token: getToken() });
-      if (res.data.success && res.data.items) {
-        const items = res.data.items.map(i => ({
-          productId: i.productId._id,
-          name: i.productId.name,
-          price: i.productId.price,
-          quantity: i.quantity,
-        }));
+      const res = await axios.get(`${BASE_URL}/cart/getcart`, getAuthHeader());
+      if (res.data.cart?.items) {
+        const items = await Promise.all(
+          res.data.cart.items.map(async (i) => {
+            const product = await fetchProductDetails(i.productId);
+            return {
+              productId: i.productId,
+              name: product?.name || "N/A",
+              price: product?.price || 0,
+              category: product?.category || "N/A",
+              image: product?.images?.[0] || "",
+              quantity: i.quantity,
+            };
+          })
+        );
         setCart(items);
       } else {
         setCart([]);
@@ -44,52 +64,91 @@ export const ShopContextProvider = ({ children }) => {
     }
   };
 
-  // ======== FETCH ORDERS ========
-  const fetchOrders = async () => {
-    try {
-      const res = await axios.post(`${BASE_URL}/orders/user`, { token: getToken() });
-      if (res.data) setOrders(res.data);
-    } catch (err) {
-      console.error("Fetch orders error:", err.response?.data || err.message);
+
+  // ======== FETCH USER ORDERS ========
+const fetchUserOrders = async () => {
+  try {
+    const res = await axios.get(`${BASE_URL}/orders`, getAuthHeader()); // backend route
+    if (res.data.success) {
+      setOrders(res.data.orders); // store in context state
+      return res.data.orders;     // also return for immediate use
+    } else {
+      console.error("Failed to fetch orders:", res.data.message);
+      return [];
     }
-  };
+  } catch (err) {
+    console.error("Fetch user orders error:", err.response?.data || err.message);
+    return [];
+  }
+};
 
   // ======== ADD TO CART ========
   const addToCart = async (productId, quantity = 1) => {
-    try {
-      const res = await axios.post(`${BASE_URL}/cart/add`, { productId, quantity, token: getToken() });
+    const token = getToken();
+    if (!token) {
+      alert("You must login first!");
+      return false;
+    }
 
-      if (res.data.success && res.data.items) {
-        const items = res.data.items.map(i => ({
-          productId: i.productId._id,
-          name: i.productId.name,
-          price: i.productId.price,
-          quantity: i.quantity,
-        }));
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/cart/add`,
+        { productId, quantity },
+        getAuthHeader()
+      );
+
+      console.log(res.data.items)
+
+      if (res.data.items) {
+        const items = await Promise.all(
+          res.data.items.map(async (i) => {
+            const product = await fetchProductDetails(i.productId);
+            return {
+              productId: i.productId,
+              name: product?.name || "N/A",
+              price: product?.price || 0,
+              category: product?.category || "N/A",
+              image: product?.images?.[0] || "",
+              quantity: i.quantity,
+            };
+          })
+        );
         setCart(items);
-        alert("add to cart successfull")
         return true;
-      }else{
-        alert("add to cart failed")
-      return false;}
+      } else {
+        alert("Add to cart failed");
+        return false;
+      }
     } catch (e) {
       console.log("Add to cart error:", e.response?.data || e.message);
+      alert(e.response?.data?.message || "Add to cart failed");
       return false;
     }
   };
 
-  // ======== OTHER CART FUNCTIONS ========
+  // ======== REMOVE FROM CART ========
   const removeFromCart = async (productId) => {
     try {
-      const res = await axios.post(`${BASE_URL}/cart/remove`, { productId, token: getToken() });
+      const res = await axios.post(
+        `${BASE_URL}/cart/remove`,
+        { productId },
+        getAuthHeader()
+      );
 
-      if (res.data.success && res.data.items) {
-        const items = res.data.items.map(i => ({
-          productId: i.productId._id,
-          name: i.productId.name,
-          price: i.productId.price,
-          quantity: i.quantity,
-        }));
+      if (res.data.cart?.items) {
+        const items = await Promise.all(
+          res.data.cart.items.map(async (i) => {
+            const product = await fetchProductDetails(i.productId);
+            return {
+              productId: i.productId,
+              name: product?.name || "N/A",
+              price: product?.price || 0,
+              category: product?.category || "N/A",
+              image: product?.images?.[0] || "",
+              quantity: i.quantity,
+            };
+          })
+        );
         setCart(items);
       }
     } catch (e) {
@@ -97,28 +156,31 @@ export const ShopContextProvider = ({ children }) => {
     }
   };
 
-  const clearCart = async () => {
-    try {
-      await axios.post(`${BASE_URL}/cart/clear`, { token: getToken() });
-      setCart([]);
-    } catch (e) {
-      console.log("Clear cart error:", e.response?.data || e.message);
-    }
-  };
-
+  // ======== UPDATE CART ITEM QUANTITY ========
   const updateCartItemQuantity = async (productId, quantity) => {
     if (quantity <= 0) return removeFromCart(productId);
 
     try {
-      const res = await axios.post(`${BASE_URL}/cart/update`, { productId, quantity, token: getToken() });
+      const res = await axios.post(
+        `${BASE_URL}/cart/update`,
+        { productId, quantity },
+        getAuthHeader()
+      );
 
-      if (res.data.success && res.data.items) {
-        const items = res.data.items.map(i => ({
-          productId: i.productId._id,
-          name: i.productId.name,
-          price: i.productId.price,
-          quantity: i.quantity,
-        }));
+      if (res.data.cart?.items) {
+        const items = await Promise.all(
+          res.data.cart.items.map(async (i) => {
+            const product = await fetchProductDetails(i.productId);
+            return {
+              productId: i.productId,
+              name: product?.name || "N/A",
+              price: product?.price || 0,
+              category: product?.category || "N/A",
+              image: product?.images?.[0] || "",
+              quantity: i.quantity,
+            };
+          })
+        );
         setCart(items);
       }
     } catch (e) {
@@ -126,16 +188,37 @@ export const ShopContextProvider = ({ children }) => {
     }
   };
 
+  const clearCart = async () => {
+    try {
+      await axios.post(`${BASE_URL}/cart/clear`, {}, getAuthHeader());
+      setCart([]);
+    } catch (e) {
+      console.log("Clear cart error:", e.response?.data || e.message);
+    }
+  };
+
   const getTotalItems = () => cart.reduce((sum, item) => sum + item.quantity, 0);
   const getTotalPrice = () => cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   // ======== ORDERS ========
+  const fetchOrders = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/orders/user`, getAuthHeader());
+      if (res.data) setOrders(res.data);
+    } catch (err) {
+      console.error("Fetch orders error:", err.response?.data || err.message);
+    }
+  };
+
   const createOrder = async (paymentMethod, shippingAddress) => {
     try {
-      const res = await axios.post(`${BASE_URL}/orders/create`, { paymentMethod, shippingAddress, token: getToken() });
-
+      const res = await axios.post(
+        `${BASE_URL}/orders/create`,
+        { paymentMethod, shippingAddress },
+        getAuthHeader()
+      );
       if (res.data.order) {
-        setOrders(prev => [res.data.order, ...prev]);
+        setOrders((prev) => [res.data.order, ...prev]);
         setCart([]);
       }
       return res.data;
@@ -145,9 +228,31 @@ export const ShopContextProvider = ({ children }) => {
     }
   };
 
+  // ShopContext.jsx
+const fetchProductById = async (productId) => {
+  try {
+    const res = await fetch(`https://goldback2.onrender.com/product/${productId}`);
+    const data = await res.json();
+    if (data.success) {
+      return data.theproduct; // returns the actual product object
+    } else {
+      console.error("Failed to fetch product:", data.message);
+      return null;
+    }
+  } catch (err) {
+    console.error("Fetch product error:", err);
+    return null;
+  }
+};
+
+
   const payWithMpesa = async (orderId, phone) => {
     try {
-      const res = await axios.post(`${BASE_URL}/mpesa/stk`, { orderId, phone, token: getToken() });
+      const res = await axios.post(
+        `${BASE_URL}/pesa/callback`,
+        { orderId, phone },
+        getAuthHeader()
+      );
       return res.data;
     } catch (e) {
       console.log("STK push error:", e.response?.data || e.message);
@@ -186,6 +291,8 @@ export const ShopContextProvider = ({ children }) => {
         fetchOrders,
         createOrder,
         payWithMpesa,
+        fetchProductById,
+        fetchUserOrders
       }}
     >
       {children}

@@ -24,47 +24,52 @@ const Login = () => {
   const { setToken } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const submithandler = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      let response;
+ const submithandler = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
-      if (logstate === "signup") {
-        response = await axios.post(
-          "https://goldback2.onrender.com/user/reg",
-          { name, email, password } // token returned in response.data.token
-        );
-      } else {
-        response = await axios.post(
-          "https://goldback2.onrender.com/user/login",
-          { email, password } // token returned in response.data.token
-        );
-      }
+  try {
+    let response;
 
-      if (response.data.success) {
-        // Save token for token-only auth
-        localStorage.setItem("token", response.data.token);
-
-        setName("");
-        setEmail("");
-        setPassword("");
-        toast.success(response.data.message);
-
-        // Optional: track login state in context
-        if (setToken) setToken(true);
-
-        navigate("/");
-      } else {
-        toast.error(response.data.message);
-      }
-    } catch (e) {
-      console.log(e);
-      toast.error("Something went wrong!");
-    } finally {
-      setLoading(false);
+    if (logstate === "signup") {
+      response = await axios.post(
+        "https://goldback2.onrender.com/user/reg",
+        { name, email, password }
+      );
+    } else {
+      response = await axios.post(
+        "https://goldback2.onrender.com/user/login",
+        { email, password }
+      );
     }
-  };
+
+    if (response.data.success) {
+      // Save token
+      localStorage.setItem("token", response.data.token);
+      setName("");
+      setEmail("");
+      setPassword("");
+      toast.success(response.data.message);
+      if (setToken) setToken(true);
+      navigate("/");
+    } else {
+      // If login fails, clear email and password, show error
+      setEmail("");
+      setPassword("");
+      toast.error(response.data.message || "Wrong email or password!");
+    }
+  } catch (e) {
+    console.log(e);
+    // Clear fields and show generic error
+    setEmail("");
+    setPassword("");
+    toast.error("Wrong email or password!");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   return (
     <div className="LoginContainer">

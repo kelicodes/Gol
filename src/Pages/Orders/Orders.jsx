@@ -8,22 +8,25 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const getOrders = async () => {
-      setLoading(true);
-      try {
-        const data = await fetchUserOrders(); // call context method
-        setOrders(data || []);
-      } catch (err) {
-        console.error(err);
-        setError("Failed to load orders.");
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    getOrders();
-  }, [fetchUserOrders]);
+
+useEffect(() => {
+  const getOrders = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchUserOrders(); // uses token automatically
+      setOrders(data || []);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load orders.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  getOrders();
+}, [fetchUserOrders]);
+
 
   if (loading) return <p className="loading">Loading orders...</p>;
   if (error) return <p className="error">{error}</p>;

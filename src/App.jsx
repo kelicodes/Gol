@@ -11,7 +11,7 @@ import Cartcheckout from "./Pages/Cartcheckout/Cartcheckout.jsx";
 import CheckoutPage from "./Pages/Checkout/Checkout.jsx";
 
 import ProtectedRoute from "./Components/Protected/ProtectedRoute.jsx"
-
+import Orders from "./Pages/Orders/Orders.jsx";
 const App = () => {
   return (
     <div className="app">
@@ -38,6 +38,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <CheckoutPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <Orders />
               </ProtectedRoute>
             }
           />
