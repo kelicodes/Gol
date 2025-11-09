@@ -3,86 +3,104 @@ import axios from "axios";
 
 export const ShopContext = createContext();
 
-const BASE_URL = "https://goldback2.onrender.com"; // your backend
+const BASE_URL = "https://goldback2.onrender.com";
 
 export const ShopContextProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [orders, setOrders] = useState([]);
 
+  // Helper to get token
+  const getToken = () => localStorage.getItem("token");
+
   // ======== FETCH PRODUCTS ========
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/products/fetch`);
-      if (response.data.products) setProducts(response.data.products);
+      const res = await axios.get(`${BASE_URL}/products/fetch`);
+      if (res.data.products) setProducts(res.data.products);
     } catch (e) {
       console.log("Fetch products error:", e);
     }
   };
 
-  useEffect(() => {
-    fetchProducts();
-    fetchCart(); // fetch cart on mount if user logged in
-    fetchOrders(); // fetch orders for logged-in user
-  }, []);
-
-  // ======== CART ENDPOINTS ========
-  const fetchCart = async () => {
+  // ======== FETCH CART ========
+  const myCart = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/cart/get`, {
-        withCredentials: true, // send cookies with JWT
-      });
-      if (res.data.cart) setCart(res.data.cart.items);
-    } catch (e) {
-      console.log("Fetch cart error:", e);
+      const res = await axios.post(`${BASE_URL}/cart/getcart`, { token: getToken() });
+      if (res.data.success && res.data.items) {
+        const items = res.data.items.map(i => ({
+          productId: i.productId._id,
+          name: i.productId.name,
+          price: i.productId.price,
+          quantity: i.quantity,
+        }));
+        setCart(items);
+      } else {
+        setCart([]);
+      }
+    } catch (err) {
+      console.error("Error fetching cart:", err.response?.data || err.message);
+      setCart([]);
     }
   };
 
- const addToCart = async (productId) => {
-  try {
-    const token = localStorage.getItem("token"); // get token from localStorage
+  // ======== FETCH ORDERS ========
+  const fetchOrders = async () => {
+    try {
+      const res = await axios.post(`${BASE_URL}/orders/user`, { token: getToken() });
+      if (res.data) setOrders(res.data);
+    } catch (err) {
+      console.error("Fetch orders error:", err.response?.data || err.message);
+    }
+  };
 
-    if (!token) return alert("Please log in to add items to cart");
+  // ======== ADD TO CART ========
+  const addToCart = async (productId, quantity = 1) => {
+    try {
+      const res = await axios.post(`${BASE_URL}/cart/add`, { productId, quantity, token: getToken() });
 
-    // Set token as a cookie manually before the request
-    document.cookie = `token=${token}; path=/;`;
+      if (res.data.success && res.data.items) {
+        const items = res.data.items.map(i => ({
+          productId: i.productId._id,
+          name: i.productId.name,
+          price: i.productId.price,
+          quantity: i.quantity,
+        }));
+        setCart(items);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      console.log("Add to cart error:", e.response?.data || e.message);
+      return false;
+    }
+  };
 
-    const res = await axios.post(
-      `${BASE_URL}/cart/add`,
-      { productId, quantity: 1 },
-      { withCredentials: true } // send cookies with request
-    );
-
-    setCart(res.data.items);
-  } catch (e) {
-    console.log("Add to cart error:", e);
-  }
-};
-
-
+  // ======== OTHER CART FUNCTIONS ========
   const removeFromCart = async (productId) => {
     try {
-      const res = await axios.post(
-        `${BASE_URL}/cart/remove`,
-        { productId },
-        { withCredentials: true }
-      );
-      setCart(res.data.items);
+      const res = await axios.post(`${BASE_URL}/cart/remove`, { productId, token: getToken() });
+
+      if (res.data.success && res.data.items) {
+        const items = res.data.items.map(i => ({
+          productId: i.productId._id,
+          name: i.productId.name,
+          price: i.productId.price,
+          quantity: i.quantity,
+        }));
+        setCart(items);
+      }
     } catch (e) {
-      console.log("Remove from cart error:", e);
+      console.log("Remove from cart error:", e.response?.data || e.message);
     }
   };
 
   const clearCart = async () => {
     try {
-      const res = await axios.post(
-        `${BASE_URL}/cart/clear`,
-        {},
-        { withCredentials: true }
-      );
-      setCart(res.data.cart.items);
+      await axios.post(`${BASE_URL}/cart/clear`, { token: getToken() });
+      setCart([]);
     } catch (e) {
-      console.log("Clear cart error:", e);
+      console.log("Clear cart error:", e.response?.data || e.message);
     }
   };
 
@@ -90,14 +108,19 @@ export const ShopContextProvider = ({ children }) => {
     if (quantity <= 0) return removeFromCart(productId);
 
     try {
-      const res = await axios.post(
-        `${BASE_URL}/cart/update`,
-        { productId, quantity },
-        { withCredentials: true }
-      );
-      setCart(res.data.items);
+      const res = await axios.post(`${BASE_URL}/cart/update`, { productId, quantity, token: getToken() });
+
+      if (res.data.success && res.data.items) {
+        const items = res.data.items.map(i => ({
+          productId: i.productId._id,
+          name: i.productId.name,
+          price: i.productId.price,
+          quantity: i.quantity,
+        }));
+        setCart(items);
+      }
     } catch (e) {
-      console.log("Update cart quantity error:", e);
+      console.log("Update cart quantity error:", e.response?.data || e.message);
     }
   };
 
@@ -105,64 +128,65 @@ export const ShopContextProvider = ({ children }) => {
   const getTotalPrice = () => cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   // ======== ORDERS ========
-  const fetchOrders = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/orders/user`, { withCredentials: true });
-      if (res.data) setOrders(res.data);
-    } catch (e) {
-      console.log("Fetch orders error:", e);
-    }
-  };
-
   const createOrder = async (paymentMethod, shippingAddress) => {
     try {
-      const res = await axios.post(
-        `${BASE_URL}/orders/create`,
-        { paymentMethod, shippingAddress },
-        { withCredentials: true }
-      );
+      const res = await axios.post(`${BASE_URL}/orders/create`, { paymentMethod, shippingAddress, token: getToken() });
+
       if (res.data.order) {
-        setOrders((prev) => [res.data.order, ...prev]);
-        setCart([]); // cart cleared after order
+        setOrders(prev => [res.data.order, ...prev]);
+        setCart([]);
       }
       return res.data;
     } catch (e) {
-      console.log("Create order error:", e);
+      console.log("Create order error:", e.response?.data || e.message);
       return { success: false };
     }
   };
 
   const payWithMpesa = async (orderId, phone) => {
     try {
-      const res = await axios.post(
-        `${BASE_URL}/mpesa/stk`,
-        { orderId, phone },
-        { withCredentials: true }
-      );
+      const res = await axios.post(`${BASE_URL}/mpesa/stk`, { orderId, phone, token: getToken() });
       return res.data;
     } catch (e) {
-      console.log("STK push error:", e);
+      console.log("STK push error:", e.response?.data || e.message);
       return { success: false };
     }
   };
 
-  // ======== SHOP CONTEXT VALUE ========
-  const contextValue = {
-    products,
-    cart,
-    orders,
-    addToCart,
-    removeFromCart,
-    clearCart,
-    updateCartItemQuantity,
-    getTotalItems,
-    getTotalPrice,
-    fetchProducts,
-    fetchCart,
-    fetchOrders,
-    createOrder,
-    payWithMpesa,
-  };
+  // ======== INITIAL LOAD ========
+  useEffect(() => {
+    const init = async () => {
+      try {
+        await fetchProducts();
+        await myCart();
+        await fetchOrders();
+      } catch (err) {
+        console.log("Initialization error:", err);
+      }
+    };
+    init();
+  }, []);
 
-  return <ShopContext.Provider value={contextValue}>{children}</ShopContext.Provider>;
+  return (
+    <ShopContext.Provider
+      value={{
+        myCart,
+        products,
+        cart,
+        orders,
+        addToCart,
+        removeFromCart,
+        clearCart,
+        updateCartItemQuantity,
+        getTotalItems,
+        getTotalPrice,
+        fetchProducts,
+        fetchOrders,
+        createOrder,
+        payWithMpesa,
+      }}
+    >
+      {children}
+    </ShopContext.Provider>
+  );
 };

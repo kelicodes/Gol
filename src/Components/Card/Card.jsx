@@ -30,10 +30,11 @@ const Card = ({ id, name, price, desc, category, image }) => {
   };
 
   return (
+    <Link to={`/product/${id}`}>
     <div className="card">
-      <Link to={`/product/${id}`}>
+      
         <img src={image} alt={name} className="card-image" />
-      </Link>
+     
       <div className="card-content">
         <h3 className="card-title">{name}</h3>
         <p className="card-desc">{desc}</p>
@@ -51,6 +52,7 @@ const Card = ({ id, name, price, desc, category, image }) => {
         </div>
       </div>
     </div>
+     </Link>
   );
 };
 

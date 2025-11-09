@@ -5,21 +5,20 @@
   --sectext-color: gray;
 }
 
-/* Navbar container */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: var(--bg-color);
   color: var(--text-color);
-  padding: 10px 20px;
+  padding: 0px 0px;
   border-bottom: 2px solid var(--primary-color);
   position: sticky;
+  width: 100%;
   top: 0;
   z-index: 1000;
 }
 
-/* Logo */
 .navbar-logo h2 {
   font-size: 1.4rem;
   font-weight: 700;
@@ -29,7 +28,6 @@
   color: var(--text-color);
 }
 
-/* Links */
 .navbar-links {
   display: flex;
   gap: 25px;
@@ -46,38 +44,10 @@
   color: var(--primary-color);
 }
 
-/* Right side: menu, theme toggle, profile */
 .navbar-right {
   display: flex;
   align-items: center;
   gap: 15px;
-}
-
-/* Menu icon */
-.menu-icon {
-  cursor: pointer;
-  color: var(--primary-color);
-  display: flex;
-  align-items: center;
-}
-
-/* Theme toggle */
-.theme-toggle {
-  cursor: pointer;
-  color: var(--primary-color);
-  transition: transform 0.3s;
-}
-.theme-toggle:hover {
-  transform: rotate(15deg);
-}
-
-/* Profile image */
-.navbar-profile img {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  object-fit: cover;
-  cursor: pointer;
 }
 
 /* Cart */
@@ -94,9 +64,38 @@
   border-radius: 50%;
   font-size: 12px;
   padding: 2px 6px;
+  font-weight: bold;
 }
 
-/* Mobile responsive */
+/* Theme toggle */
+.theme-toggle {
+  cursor: pointer;
+  color: var(--primary-color);
+  transition: transform 0.3s;
+}
+.theme-toggle:hover {
+  transform: rotate(15deg);
+}
+
+/* Logout button */
+.logout-btn {
+  cursor: pointer;
+  color: var(--primary-color);
+  transition: transform 0.2s;
+}
+.logout-btn:hover {
+  transform: scale(1.2);
+}
+
+/* Mobile menu */
+.menu-icon {
+  cursor: pointer;
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
   .navbar-links {
     position: absolute;

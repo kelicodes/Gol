@@ -8,51 +8,61 @@ import { SiNamecheap } from "react-icons/si";
 import { AuthContext } from "../../Context/Authcontext.jsx";
 import "./Login.css";
 
+const Spinner = () => (
+  <div className="button-spinner">
+    <div className="spinner"></div>
+  </div>
+);
+
 const Login = () => {
   const [logstate, setLogstate] = useState("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const { setToken } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const submithandler = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       let response;
 
       if (logstate === "signup") {
-        response = await axios.post("https://goldback2.onrender.com/user/reg", {
-          name,
-          email,
-          password,
-        });
+        response = await axios.post(
+          "https://goldback2.onrender.com/user/reg",
+          { name, email, password } // token returned in response.data.token
+        );
       } else {
-        response = await axios.post("https://goldback2.onrender.com/user/login", {
-          email,
-          password,
-        });
+        response = await axios.post(
+          "https://goldback2.onrender.com/user/login",
+          { email, password } // token returned in response.data.token
+        );
       }
 
       if (response.data.success) {
-        // Save token to localStorage AND context
+        // Save token for token-only auth
         localStorage.setItem("token", response.data.token);
-        setToken(response.data.token);
 
-        // Clear fields
         setName("");
         setEmail("");
         setPassword("");
-
         toast.success(response.data.message);
-        navigate("/"); // redirect after login/signup
+
+        // Optional: track login state in context
+        if (setToken) setToken(true);
+
+        navigate("/");
       } else {
         toast.error(response.data.message);
       }
     } catch (e) {
       console.log(e);
       toast.error("Something went wrong!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -60,9 +70,7 @@ const Login = () => {
     <div className="LoginContainer">
       <form onSubmit={submithandler} className="Login">
         <div className="navbar-logo">
-          <h2>
-            Gold<span>Store</span>
-          </h2>
+          <h2>Gold<span>Store</span></h2>
         </div>
 
         {logstate === "signup" && (
@@ -100,8 +108,8 @@ const Login = () => {
           />
         </div>
 
-        <button type="submit" className="btn">
-          {logstate === "signup" ? "Sign Up" : "Login"}
+        <button type="submit" className="btn" disabled={loading}>
+          {loading ? <Spinner /> : logstate === "signup" ? "Sign Up" : "Login"}
         </button>
 
         <p>

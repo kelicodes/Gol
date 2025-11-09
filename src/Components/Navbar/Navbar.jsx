@@ -1,36 +1,43 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react"; 
 import { useNavigate } from "react-router-dom";
 import { assets } from "../../assets/asssets.js";
-import { Menu, X, Sun, Moon, ShoppingCart } from "lucide-react";
+import { Menu, X, Sun, Moon, ShoppingCart, LogOut } from "lucide-react";
+import { ShopContext } from "../../Context/ShopContext.jsx";
+import { AuthContext } from "../../Context/Authcontext.jsx";
 import "./Navbar.css";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [theme, setTheme] = useState("dark");
-  const [cartCount, setCartCount] = useState(3); // example cart items
-  const navigate = useNavigate(); // <-- useNavigate hook
+  const navigate = useNavigate();
+
+  const { cart, myCart } = useContext(ShopContext); // cart state + fetch function
+  const { setToken } = useContext(AuthContext);
+
+  // Fetch cart when navbar mounts
+  useEffect(() => {
+    myCart(); // fetch user's cart data
+  }, []);
 
   // Apply theme to root element
   useEffect(() => {
     document.documentElement.setAttribute("theme", theme);
   }, [theme]);
 
-  const toggleTheme = () => {
-    setTheme(prev => (prev === "dark" ? "light" : "dark"));
+  const toggleTheme = () => setTheme(prev => (prev === "dark" ? "light" : "dark"));
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setToken(null);
+    navigate("/login");
   };
 
-  // Links array
   const links = [
     { name: "Home", path: "/" },
     { name: "Products", path: "/products" },
     { name: "About", path: "/about" },
     { name: "Contact", path: "/contact" }
   ];
-
-  // Navigate to cart page
-  const goToCart = () => {
-    navigate("/cart");
-  };
 
   return (
     <nav className="navbar">
@@ -48,7 +55,7 @@ const Navbar = () => {
             <a
               href={link.path}
               className={window.location.pathname === link.path ? "active" : ""}
-              onClick={() => setMenuOpen(false)} // close menu on click
+              onClick={() => setMenuOpen(false)}
             >
               {link.name}
             </a>
@@ -59,9 +66,9 @@ const Navbar = () => {
       {/* Right Side */}
       <div className="navbar-right">
         {/* Cart Icon */}
-        <div className="navbar-cart" onClick={goToCart} style={{ cursor: "pointer" }}>
+        <div className="navbar-cart" onClick={() => navigate("/cart")}>
           <ShoppingCart size={24} />
-          <span className="cart-count">{cartCount}</span>
+          {cart.length > 0 && <span className="cart-count">{cart.length}</span>}
         </div>
 
         {/* Theme Toggle */}
@@ -69,9 +76,9 @@ const Navbar = () => {
           {theme === "dark" ? <Sun size={22} /> : <Moon size={22} />}
         </div>
 
-        {/* Profile */}
-        <div className="navbar-profile">
-          <img src={assets.profileimg} alt="Profile" />
+        {/* Logout Button */}
+        <div className="logout-btn" onClick={handleLogout}>
+          <LogOut size={24} />
         </div>
 
         {/* Mobile Menu Icon */}

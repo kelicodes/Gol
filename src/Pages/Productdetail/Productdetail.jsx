@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react"; 
+import React, { useContext, useState, useEffect } from "react";  
 import { useParams, useNavigate } from "react-router-dom";
 import { ShopContext } from "../../Context/ShopContext.jsx";
 import "./ProductDetail.css";
@@ -25,24 +25,50 @@ const ProductDetail = () => {
 
   if (!product) return <p className="loading">Loading product...</p>;
 
+  // Add product to cart and navigate to /cart if successful
   const handleAddToCart = async () => {
     setLoading(true);
-    await addToCart(product._id, quantity);
-    setLoading(false);
-    alert("Added to cart!");
+
+    try {
+      const success = await addToCart(product._id, quantity);
+
+      if (success) {
+        // ✅ Redirect to cart page
+        navigate("/cart");
+      } else {
+        // ❌ Failed but continue allowing user to retry
+        alert("Failed to add to cart. You can try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error adding to cart. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Buy now: add to cart first, then create order
   const handleBuyNow = async () => {
     setLoading(true);
-    try {
-      // Add product to cart first
-      await addToCart(product._id, quantity);
 
-      // Immediately create an order
-      const order = await createOrder("Mpesa", "User shipping address"); // You can replace with real address input
+    try {
+      const added = await addToCart(product._id, quantity);
+      if (!added) {
+        alert("Failed to add to cart. Try again.");
+        return;
+      }
+
+      // Replace with actual shipping info input
+      const order = await createOrder("Mpesa", {
+        name: "User Name",
+        phone: "0712345678",
+        apartment: "Apartment A",
+        doorNumber: "101",
+      });
+
       if (order.success) {
         alert("Order created! Proceed to payment.");
-        navigate("/checkout"); // redirect to checkout/payment page
+        navigate("/checkout");
       } else {
         alert("Failed to create order.");
       }
