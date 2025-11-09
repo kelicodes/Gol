@@ -1,6 +1,6 @@
 :root{
     --primary-color:gold;
-    --bg-color:black;
+    --bg-color:linear-gradient(135deg, #1a1a1a, #111);
     --text-color:white;
     --sectext-color:gray;
 }
@@ -12,6 +12,18 @@ html[theme="light"]{
     --text-color:black;
     
 }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  width: 100%;
+  overflow-x: hidden; /* prevent horizontal scroll */
+}
+* {
+  box-sizing: inherit;
+}
+
 
 
 
