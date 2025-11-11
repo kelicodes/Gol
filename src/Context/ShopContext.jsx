@@ -231,7 +231,7 @@ const fetchUserOrders = async () => {
   // ShopContext.jsx
 const fetchProductById = async (productId) => {
   try {
-    const res = await fetch(`https://goldback2.onrender.com/product/${productId}`);
+    const res = await fetch(`https://goldback2.onrender.com/products/fetch/${id}`);
     const data = await res.json();
     if (data.success) {
       return data.theproduct; // returns the actual product object
