@@ -1,12 +1,11 @@
-import React, { useContext, useState, useEffect } from "react";
-import { ShopContext } from "../../Context/ShopContext.jsx";
+import React, { useState, useEffect } from "react";
+import axios from "axios"; // make sure axios is imported
 import Spinner from "../../Components/Spinner/Spinner.jsx";
 import Card from "../../Components/Card/Card.jsx";
 import "./Collection.css";
 
 const Collection = () => {
-  const { products = [] } = useContext(ShopContext);
-
+  const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [sortOption, setSortOption] = useState("default");
@@ -14,27 +13,38 @@ const Collection = () => {
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
 
+  const BASE_URL = "https://goldback2.onrender.com";
   const categories = ["All", "Shoes", "Sweatpants", "Jackets", "Hoodies"];
 
-  useEffect(() => {
-    setLoading(true);
-
-    if (!Array.isArray(products) || products.length === 0) {
-      setFilteredProducts([]);
+  // Fetch products from backend
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`${BASE_URL}/products/fetch`);
+      if (res.data.products) setProducts(res.data.products);
+    } catch (err) {
+      console.error("Fetch products error:", err.response?.data || err.message);
+    } finally {
       setLoading(false);
-      return;
     }
+  };
 
-    let tempProducts = [...products];
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
-    // Filter by category
+  // Filter, search, and sort products
+  useEffect(() => {
+    let tempProducts = Array.isArray(products) ? [...products] : [];
+
+    // Category filter
     if (categoryFilter !== "All") {
       tempProducts = tempProducts.filter(
         (prod) => prod.category === categoryFilter
       );
     }
 
-    // Filter by search
+    // Search filter
     if (searchTerm.trim() !== "") {
       tempProducts = tempProducts.filter(
         (prod) =>
@@ -51,14 +61,13 @@ const Collection = () => {
     }
 
     setFilteredProducts(tempProducts);
-    setLoading(false);
   }, [products, categoryFilter, sortOption, searchTerm]);
 
   return (
     <section className="collection">
       <h2 className="collection-title">Our Collection</h2>
 
-      {/* Button to toggle drawer */}
+      {/* Toggle filters drawer */}
       <button
         className="drawer-toggle"
         onClick={() => setShowFilters((prev) => !prev)}
@@ -66,7 +75,7 @@ const Collection = () => {
         {showFilters ? "Close Filters" : "Open Filters"}
       </button>
 
-      {/* LEFT SIDE DRAWER */}
+      {/* Filters drawer */}
       <div className={`filters-drawer ${showFilters ? "open" : ""}`}>
         <h3>Filters</h3>
 
@@ -106,12 +115,15 @@ const Collection = () => {
           />
         </div>
 
-        <button className="apply-btn" onClick={() => setShowFilters(false)}>
+        <button
+          className="apply-btn"
+          onClick={() => setShowFilters(false)}
+        >
           Apply Filters
         </button>
       </div>
 
-      {/* Product Grid */}
+      {/* Product grid */}
       <div className="collection-grid">
         {loading ? (
           <Spinner />
@@ -128,7 +140,7 @@ const Collection = () => {
             />
           ))
         ) : (
-          <p className="no-products">No products found.</p>
+          <p>No products found.</p>
         )}
       </div>
     </section>

@@ -1,6 +1,5 @@
 import { useState, useEffect, useContext } from "react"; 
 import { useNavigate } from "react-router-dom";
-import { assets } from "../../assets/asssets.js";
 import { Menu, X, Sun, Moon, ShoppingCart, LogOut } from "lucide-react";
 import { ShopContext } from "../../Context/ShopContext.jsx";
 import { AuthContext } from "../../Context/Authcontext.jsx";
@@ -11,8 +10,13 @@ const Navbar = () => {
   const [theme, setTheme] = useState("dark");
   const navigate = useNavigate();
 
-  const { cart, myCart } = useContext(ShopContext); // cart state + fetch function
-  const { setToken } = useContext(AuthContext);
+  // Use optional chaining and defaults
+  const shopCtx = useContext(ShopContext) || {};
+  const cart = shopCtx.cart || [];
+  const myCart = shopCtx.myCart || (() => {});
+
+  const authCtx = useContext(AuthContext) || {};
+  const setToken = authCtx.setToken || (() => {});
 
   // Fetch cart when navbar mounts
   useEffect(() => {

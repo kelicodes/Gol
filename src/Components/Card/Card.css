@@ -3,7 +3,6 @@
   display: flex;
   flex-direction: column;
   border-radius: 12px;
-  text-decoration: none;
   overflow: hidden;
   background-color: var(--bg-color);
   width: 100%;
@@ -23,7 +22,7 @@
 /* Image styling */
 .card img.card-image {
   width: 100%;
-  height: 200px; /* uniform height */
+  height: 200px;
   object-fit: cover;
   display: block;
   transition: transform 0.3s;
@@ -73,7 +72,7 @@
 /* Buttons container */
 .card-buttons {
   display: flex;
-  gap: 10px; /* space between buttons */
+  gap: 10px;
   margin-top: 10px;
   flex-wrap: wrap;
 }
@@ -87,12 +86,13 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s;
-  flex: 1 1 48%; /* half-width for desktop */
+  flex: 1 1 48%;
+  text-decoration: none; /* remove underline */
+  color: #fff;           /* ensure proper color */
 }
 
 .btn-add-cart {
   background-color: var(--primary-color);
-  color: #fff;
 }
 
 .btn-add-cart:hover {
@@ -102,7 +102,6 @@
 
 .btn-buy-now {
   background-color: #28a745;
-  color: #fff;
 }
 
 .btn-buy-now:hover {
@@ -110,38 +109,22 @@
   transform: translateY(-2px);
 }
 
-/* Make card responsive on small screens */
+/* Responsive */
 @media (max-width: 768px) {
   .card {
-    max-width: 45%; /* two cards per row */
+    max-width: 45%;
     margin: 10px 5px;
   }
 }
 
 @media (max-width: 480px) {
   .card {
-    max-width: 100%; /* full width on mobile */
+    max-width: 100%;
     margin: 10px 0;
   }
 
   .btn-add-cart,
   .btn-buy-now {
-    flex: 1 1 100%; /* stack buttons vertically */
+    flex: 1 1 100%;
   }
 }
-
-
-
-/* Remove underline for links inside cards */
-.card,
-.card * {
-  text-decoration: none; /* remove underline */
-  color: inherit;        /* inherit text color from card */
-}
-
-/* Optional: specifically for Link wrapping card */
-.card a {
-  text-decoration: none;
-  color: inherit;
-}
-

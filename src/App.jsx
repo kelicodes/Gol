@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./Components/Navbar/Navbar.jsx";
 import Footer from "./Components/Footer/Footer.jsx";
 
@@ -6,16 +6,22 @@ import Home from "./Pages/Home/Home.jsx";
 import Login from "./Pages/Login/Login.jsx";
 import Collection from "./Components/Collection/Collection.jsx";
 import ProductDetail from "./Pages/Productdetail/Productdetail.jsx";
-
 import Cartcheckout from "./Pages/Cartcheckout/Cartcheckout.jsx";
 import CheckoutPage from "./Pages/Checkout/Checkout.jsx";
-
-import ProtectedRoute from "./Components/Protected/ProtectedRoute.jsx"
 import Orders from "./Pages/Orders/Orders.jsx";
+import ProtectedRoute from "./Components/Protected/ProtectedRoute.jsx";
+
 const App = () => {
+  const location = useLocation();
+
+  // Pages where we don't want Navbar and Footer
+  const hideLayout = ["/login"];
+
+  const showLayout = !hideLayout.includes(location.pathname);
+
   return (
     <div className="app">
-      <Navbar />
+      {showLayout && <Navbar />}
       <main>
         <Routes>
           {/* Public routes */}
@@ -24,7 +30,7 @@ const App = () => {
           <Route path="/collection" element={<Collection />} />
           <Route path="/product/:id" element={<ProductDetail />} />
 
-          {/* Cart routes */}
+          {/* Protected routes */}
           <Route
             path="/cart"
             element={
@@ -51,7 +57,7 @@ const App = () => {
           />
         </Routes>
       </main>
-      <Footer />
+      {showLayout && <Footer />}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useContext } from "react"; 
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ShopContext } from "../../Context/ShopContext.jsx";
 import "./Card.css";
 
@@ -7,34 +7,34 @@ const Card = ({ id, name, price, desc, category, image }) => {
   const { addToCart } = useContext(ShopContext);
   const navigate = useNavigate();
 
-  
-
-  const handleAddToCart = () => {
-     const token = localStorage.getItem("token");
-  if (!token) {
-    navigate("/login"); // redirect to login if not logged in
-    return;
-  }
+  const handleAddToCart = (e) => {
+    e.stopPropagation(); // Prevent card click
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
     addToCart({ _id: id, name, price, category, images: [image], quantity: 1 });
   };
 
-  const handleBuyNow = () => {
-     const token = localStorage.getItem("token");
-  if (!token) {
-    navigate("/login"); // redirect to login if not logged in
-    return;
-  }
-    // Add product to cart and redirect to checkout
+  const handleBuyNow = (e) => {
+    e.stopPropagation(); // Prevent card click
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
     addToCart({ _id: id, name, price, category, images: [image], quantity: 1 });
     navigate("/checkout");
   };
 
+  const handleCardClick = () => {
+    navigate(`/product/${id}`);
+  };
+
   return (
-    <Link to={`/product/${id}`}>
-    <div className="card">
-      
-        <img src={image} alt={name} className="card-image" />
-     
+    <div className="card" onClick={handleCardClick}>
+      <img src={image} alt={name} className="card-image" />
       <div className="card-content">
         <h3 className="card-title">{name}</h3>
         <p className="card-desc">{desc}</p>
@@ -52,7 +52,6 @@ const Card = ({ id, name, price, desc, category, image }) => {
         </div>
       </div>
     </div>
-     </Link>
   );
 };
 
